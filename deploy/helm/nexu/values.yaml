@@ -69,11 +69,6 @@ gateway:
     repository: nexu-gateway
     tag: latest
     pullPolicy: IfNotPresent
-  initContainer:
-    image:
-      repository: curlimages/curl
-      tag: latest
-      pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 18789

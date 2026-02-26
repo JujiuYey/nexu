@@ -1,4 +1,5 @@
 import { registerPool } from "./api.js";
+import { fetchInitialConfig } from "./config.js";
 import { env, envWarnings } from "./env.js";
 import { waitGatewayReady } from "./gateway-health.js";
 import { log } from "./log.js";
@@ -22,6 +23,29 @@ async function registerPoolWithRetry(): Promise<void> {
       return;
     } catch (error: unknown) {
       log("pool registration failed; retrying", {
+        attempt,
+        poolId: env.RUNTIME_POOL_ID,
+        retryDelayMs,
+        error: error instanceof Error ? error.message : "unknown_error",
+      });
+
+      await sleep(retryDelayMs);
+      retryDelayMs = Math.min(retryDelayMs * 2, env.RUNTIME_MAX_BACKOFF_MS);
+      attempt += 1;
+    }
+  }
+}
+
+async function fetchInitialConfigWithRetry(): Promise<void> {
+  let attempt = 1;
+  let retryDelayMs = 1000;
+
+  while (true) {
+    try {
+      await fetchInitialConfig();
+      return;
+    } catch (error: unknown) {
+      log("initial config sync failed; retrying", {
         attempt,
         poolId: env.RUNTIME_POOL_ID,
         retryDelayMs,
@@ -75,6 +99,7 @@ async function main(): Promise<void> {
     poolId: env.RUNTIME_POOL_ID,
     configPath: env.OPENCLAW_CONFIG_PATH,
   });
+  await fetchInitialConfigWithRetry();
   await waitGatewayReady();
   await registerPoolWithRetry();
   log("pool registered", { poolId: env.RUNTIME_POOL_ID });
