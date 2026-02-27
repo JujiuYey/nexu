@@ -104,8 +104,6 @@ async function main(): Promise<void> {
     configPath: env.OPENCLAW_CONFIG_PATH,
     manageOpenclawProcess: env.RUNTIME_MANAGE_OPENCLAW_PROCESS,
   });
-  await fetchInitialConfigWithRetry();
-
   if (env.RUNTIME_MANAGE_OPENCLAW_PROCESS) {
     startManagedOpenclawGateway();
   }
@@ -113,6 +111,8 @@ async function main(): Promise<void> {
   await waitGatewayReady();
   await registerPoolWithRetry();
   log("pool registered", { poolId: env.RUNTIME_POOL_ID });
+
+  await fetchInitialConfigWithRetry();
 
   runGatewayHealthLoops(state);
   void runHeartbeatLoop(state);
