@@ -29,7 +29,14 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=nexu-landing
+          command: pages project create nexu-landing --production-branch=main
+          workingDirectory: apps/landing
+        continue-on-error: true
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=nexu-landing --commit-dirty=true
           workingDirectory: apps/landing
 
   deploy-app:
@@ -47,7 +54,14 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=nexu-app
+          command: pages project create nexu-app --production-branch=main
+          workingDirectory: apps/web
+        continue-on-error: true
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=nexu-app --commit-dirty=true
           workingDirectory: apps/web
 
   deploy-router:
