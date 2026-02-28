@@ -23,6 +23,10 @@ permissions:
 env:
   AWS_REGION: us-east-1
 
+concurrency:
+  group: deploy-eks
+  cancel-in-progress: true
+
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -149,7 +153,7 @@ jobs:
             '{
               repository: "refly-ai/nexu-apps",
               environment: "prod",
-              syncMode: "createPR",
+              syncMode: "directCommit",
               changes: [
                 {
                   application: "nexu",
